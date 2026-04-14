@@ -155,12 +155,13 @@ export default function App() {
   };
 
   const saveEntry = () => {
-    if (!currentMood) return;
+    // Mood is now optional, but we need at least some content
+    if (!currentMood && !gratitude && !notes && !photo) return;
 
     const newEntry: DiaryEntry = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
-      mood: currentMood,
+      mood: currentMood || 'neutral', // Default to neutral if not selected
       gratitude,
       notes,
       photo: photo || undefined,
@@ -184,13 +185,23 @@ export default function App() {
   };
 
   const requestNotificationPermission = async () => {
-    if (!("Notification" in window)) return;
+    if (!("Notification" in window)) {
+      alert("Le notifiche non sono supportate dal tuo browser.");
+      return;
+    }
     const permission = await Notification.requestPermission();
-    if (permission === "granted" && yesterdayEntry) {
-      new Notification("Ricordo di Ieri", {
-        body: `Ieri hai scritto: "${yesterdayEntry.gratitude}"`,
-        icon: "/favicon.ico"
-      });
+    if (permission === "granted") {
+      if (yesterdayEntry) {
+        new Notification("Ricordo di Ieri", {
+          body: `Ieri hai scritto: "${yesterdayEntry.gratitude}"`,
+          icon: "/favicon.ico"
+        });
+      } else {
+        new Notification("Puzzo Ricordo Attivo!", {
+          body: "Ti avviserò non appena avrai un ricordo da rivivere.",
+          icon: "/favicon.ico"
+        });
+      }
     }
   };
 
@@ -225,16 +236,9 @@ export default function App() {
                   <Calendar size={18} />
                   <span className="text-sm font-bold uppercase tracking-wider">Ricordo di Ieri</span>
                 </div>
-                <button 
-                  onClick={requestNotificationPermission}
-                  className="text-xs bg-white/50 hover:bg-white px-3 py-1 rounded-full text-sage-600 transition-colors flex items-center gap-1"
-                >
-                  <Sparkles size={12} />
-                  Attiva Reminder
-                </button>
               </div>
               
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-sage-100">
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-sage-100 mb-4">
                 <p className="text-sage-600 text-xs uppercase font-bold mb-2">La tua cosa bella di ieri:</p>
                 <p className="text-lg font-serif italic text-sage-800 leading-relaxed">
                   "{yesterdayEntry.gratitude}"
@@ -245,6 +249,16 @@ export default function App() {
                   </div>
                 )}
               </div>
+
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={requestNotificationPermission}
+                className="w-full bg-sage-600 text-white py-3 rounded-xl font-bold shadow-md flex items-center justify-center gap-2"
+              >
+                <Sparkles size={18} />
+                Puzzo Ricordo
+              </motion.button>
             </motion.section>
           )}
         </AnimatePresence>
@@ -294,6 +308,17 @@ export default function App() {
             )}
           </AnimatePresence>
         </section>
+
+        {/* Global Notification Button */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={requestNotificationPermission}
+          className="w-full bg-sage-100 text-sage-800 py-4 rounded-2xl font-bold border-2 border-sage-200 shadow-sm flex items-center justify-center gap-2 mb-4"
+        >
+          <Sparkles size={20} className="text-sage-600" />
+          Puzzo Ricordo (Attiva Notifiche)
+        </motion.button>
 
         {/* Action Button */}
         {!isFormOpen && (
@@ -393,13 +418,8 @@ export default function App() {
                 </div>
 
                 <button
-                  disabled={!currentMood}
                   onClick={saveEntry}
-                  className={`w-full py-4 rounded-2xl font-bold shadow-md transition-all ${
-                    currentMood 
-                      ? 'bg-sage-800 text-white hover:bg-black' 
-                      : 'bg-sage-100 text-sage-400 cursor-not-allowed'
-                  }`}
+                  className="w-full py-4 rounded-2xl font-bold shadow-md transition-all bg-sage-800 text-white hover:bg-black"
                 >
                   Salva nel diario
                 </button>
