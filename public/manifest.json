@@ -1,0 +1,21 @@
+{
+  "name": "Serenity Diary",
+  "short_name": "Serenity",
+  "description": "Il tuo diario emozionale rilassante.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdfbf7",
+  "theme_color": "#5a7a5a",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/serenity/192/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://picsum.photos/seed/serenity/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
